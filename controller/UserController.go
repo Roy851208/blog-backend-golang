@@ -2,7 +2,9 @@ package controller
 
 import (
 	"blog/common"
+	"blog/dto"
 	"blog/model"
+	"blog/response"
 	"blog/util"
 	"log"
 	"net/http"
@@ -70,50 +72,63 @@ func Login(c *gin.Context) {
 	password := c.PostForm("password")
 	//數據驗證
 	if len(telephone) != 11 {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"code": 422,
-			"msg": "手機號碼為11位",
-		})
+		response.Response(
+			c,
+			http.StatusUnprocessableEntity,
+			422,
+			nil,
+			"手機號碼為11位",
+		)
 		return
 	}
 	if len(password) < 6 {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"code": 422,
-			"msg": "密碼不能少於6位數",
-		})
+		response.Response(
+			c,
+			http.StatusUnprocessableEntity,
+			422,
+			nil,
+			"密碼不能少於6位數",
+		)
 		return
 	}
 	//手機號是否存在
 	var user model.User
 	common.DB.Where("telephone = ?", telephone).First(&user)
 	if user.ID == 0 {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"code": 422,
-			"msg":  "用戶不存在",
-		})
+		response.Response(
+			c,
+			http.StatusUnprocessableEntity,
+			422,
+			nil,
+			"用戶不存在",
+		)
 		return
 	}
 	//判斷密碼是否正確
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"code": 400,
-			"msg":  "密碼錯誤",
-		})
+		response.Response(
+			c,
+			http.StatusUnprocessableEntity,
+			400,
+			nil,
+			"密碼錯誤",
+		)
 		return
 	}
 	//發放token
 	token, err := common.ReleaseToken(user)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"code": 500,
-			"msg":  "系統異常",
-		})
+		response.Response(
+			c,
+			http.StatusUnprocessableEntity,
+			500,
+			nil,
+			"系統異常",
+		)
 		log.Printf("token generate error : %v", err)
 	}
 	//返回結果
-	c.JSON(200, gin.H{
-		"code": 200,
-		"data": gin.H{"token": token},
-		"msg":  "登陸成功",
-	})
+	response.Success(c, gin.H{"token": token}, "登陸成功")
 }
 
 func Info(c *gin.Context) {
@@ -121,7 +136,7 @@ func Info(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code": 200,
 		"data": gin.H{
-			"user": user,
+			"user": dto.ToUserDto(user.(model.User)), //這裡是類型斷言
 		},
 	})
 }
