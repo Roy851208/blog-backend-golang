@@ -3,7 +3,9 @@ package common
 import (
 	"blog/model"
 	"fmt"
+	"os"
 
+	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -12,13 +14,22 @@ var DB *gorm.DB
 var err error
 
 func init() {
-	driverName := "mysql"
-	host := "localhost"
-	port := "3306"
-	database := "ginessential"
-	username := "root"
-	password := "123456"
-	charset := "utf8"
+	worDir, _ := os.Getwd()
+	viper.SetConfigName("application")
+	viper.SetConfigType("yml")
+	viper.AddConfigPath(worDir + "/config")
+	err = viper.ReadInConfig()
+	if err != nil {
+		panic(err)
+	}
+
+	driverName := viper.GetString("datasource.driverName")
+	host := viper.GetString("host.driverName")
+	port := viper.GetString("datasource.port")
+	database := viper.GetString("datasource.database")
+	username := viper.GetString("datasource.username")
+	password := viper.GetString("datasource.password")
+	charset := viper.GetString("datasource.charset")
 	args := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=true",
 		username,
 		password,
@@ -36,3 +47,14 @@ func init() {
 	}
 	DB.AutoMigrate(&model.User{})
 }
+
+// func InitConfig() {
+// 	worDir, _ := os.Getwd()
+// 	viper.SetConfigName("application")
+// 	viper.SetConfigType("yml")
+// 	viper.AddConfigPath(worDir + "/config")
+// 	err := viper.ReadInConfig()
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// }
