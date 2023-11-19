@@ -3,6 +3,7 @@ package common
 import (
 	"blog/model"
 	"fmt"
+	"net/url"
 	"os"
 
 	"github.com/spf13/viper"
@@ -30,13 +31,15 @@ func init() {
 	username := viper.GetString("datasource.username")
 	password := viper.GetString("datasource.password")
 	charset := viper.GetString("datasource.charset")
-	args := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=true",
+	loc := viper.GetString("datasource.loc")
+	args := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=true&loc=%s",
 		username,
 		password,
 		host,
 		port,
 		database,
 		charset,
+		url.QueryEscape(loc),
 	)
 	DB, err = gorm.Open(mysql.New(mysql.Config{
 		DriverName: driverName,

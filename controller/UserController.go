@@ -14,10 +14,19 @@ import (
 )
 
 func Register(c *gin.Context) {
+	//1.使用map獲取請求的參數
+	// var requestMap = make(map[string]string)
+	// json.NewDecoder(c.Request.Body).Decode(&requestMap)
+	//2.使用結構體獲取請求的參數
+	// var requestUser = model.User{}
+	// json.NewDecoder(c.Request.Body).Decode(&requestUser)
+	//3.使用GIN框架裡的BIND函數
+	var requestUser = model.User{}
+	c.Bind(&requestUser)
 	//獲取參數
-	name := c.PostForm("name")
-	telephone := c.PostForm("telephone")
-	password := c.PostForm("password")
+	name := requestUser.Name
+	telephone := requestUser.Telephone
+	password := requestUser.Password
 	//數據驗證
 	if len(telephone) != 11 {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
@@ -59,17 +68,28 @@ func Register(c *gin.Context) {
 		Password:  string(hasedPassword),
 	}
 	common.DB.Create(&newUser)
+	//發放token
+	token, err := common.ReleaseToken(newUser)
+	if err != nil {
+		response.Response(
+			c,
+			http.StatusUnprocessableEntity,
+			500,
+			nil,
+			"系統異常",
+		)
+		log.Printf("token generate error : %v", err)
+	}
 	//返回結果
-	c.JSON(200, gin.H{
-		"code": 200,
-		"msg":  "註冊成功",
-	})
+	response.Success(c, gin.H{"token": token}, "註冊成功")
 }
 
 func Login(c *gin.Context) {
 	//獲取參數
-	telephone := c.PostForm("telephone")
-	password := c.PostForm("password")
+	var requestUser = model.User{}
+	c.Bind(&requestUser)
+	telephone := requestUser.Telephone
+	password := requestUser.Password
 	//數據驗證
 	if len(telephone) != 11 {
 		response.Response(

@@ -7,13 +7,22 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ApiRouterInit(r *gin.Engine) {
+func RouterInit(r *gin.Engine) {
 
 	apiR := r.Group("/api")
 	{
 		apiR.POST("/auth/register", controller.Register)
 		apiR.POST("/auth/login", controller.Login)
 		apiR.GET("/auth/info", middleware.AuthMiddleware(), controller.Info)
+	}
+
+	categoryC := controller.NewCategoryController()
+	categoryR := r.Group("/categories")
+	{
+		categoryR.POST("", categoryC.Create)
+		categoryR.PUT("/:id", categoryC.Update)
+		categoryR.GET("/:id", categoryC.Show)
+		categoryR.DELETE("/:id", categoryC.Delete)
 	}
 
 }
