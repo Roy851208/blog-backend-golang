@@ -8,7 +8,7 @@ import (
 )
 
 func RouterInit(r *gin.Engine) {
-
+	r.Use(middleware.CORSMiddlewqre(), middleware.RecoveryMiddleware())
 	apiR := r.Group("/api")
 	{
 		apiR.POST("/auth/register", controller.Register)
