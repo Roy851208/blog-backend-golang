@@ -25,4 +25,15 @@ func RouterInit(r *gin.Engine) {
 		categoryR.DELETE("/:id", categoryC.Delete)
 	}
 
+	postC := controller.NewPostController()
+	postR := r.Group("/posts")
+	{
+		postR.Use(middleware.AuthMiddleware())
+		postR.POST("", postC.Create)
+		postR.PUT("/:id", postC.Update)
+		postR.GET("/:id", postC.Show)
+		postR.DELETE("/:id", postC.Delete)
+		postR.POST("page/list", postC.PageList)
+	}
+
 }

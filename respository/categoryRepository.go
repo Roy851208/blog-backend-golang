@@ -11,10 +11,6 @@ type CategoryRespository struct {
 	DB *gorm.DB
 }
 
-// func NewCategoryRepository() CategoryRespository {
-// 	return CategoryRepository{}
-// }
-
 func (c CategoryRespository) Create(name string) (*model.Category, error) {
 	category := model.Category{
 		Name: name,

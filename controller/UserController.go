@@ -30,8 +30,9 @@ func Register(c *gin.Context) {
 	//數據驗證
 	if len(telephone) != 11 {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
-			"code": 422,
-			"msg":  "手機號碼為11位",
+			"telephone": telephone,
+			"code":      422,
+			"msg":       "手機號碼為11位",
 		})
 		return
 	}

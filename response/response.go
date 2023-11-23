@@ -6,12 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// {
-// 	code : 20001,
-// 	data : xxx,
-// 	msg  : xxx,
-// }
-
 func Response(c *gin.Context, httpStatus int, code int, data gin.H, msg string) {
 	c.JSON(httpStatus, gin.H{"code": code, "data": data, "msg": msg})
 }
